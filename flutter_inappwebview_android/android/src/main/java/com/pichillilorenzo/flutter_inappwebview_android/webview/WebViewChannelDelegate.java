@@ -61,7 +61,7 @@ import java.util.Map;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-
+import android.os.Handler;
 public class WebViewChannelDelegate extends ChannelDelegateImpl {
   static final String LOG_TAG = "WebViewChannelDelegate";
 
@@ -94,6 +94,14 @@ public class WebViewChannelDelegate extends ChannelDelegateImpl {
         break;
       case loadUrl:
         if (webView != null) {
+          Handler handler = new Handler();
+          Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+              webView.requestFocus();
+            }
+          };
+          handler.postDelayed(runnable, 100);
           Map<String, Object> urlRequest = (Map<String, Object>) call.argument("urlRequest");
           webView.loadUrl(URLRequest.fromMap(urlRequest));
         }
@@ -1313,6 +1321,7 @@ public class WebViewChannelDelegate extends ChannelDelegateImpl {
   @Override
   public void dispose() {
     super.dispose();
+    handler.removeCallbacksAndMessages(null);
     webView = null;
   }
 }
