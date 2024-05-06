@@ -67,6 +67,7 @@ public class WebViewChannelDelegate extends ChannelDelegateImpl {
 
   @Nullable
   private InAppWebView webView;
+  Handler handler = new Handler();
 
   public WebViewChannelDelegate(@NonNull InAppWebView webView, @NonNull MethodChannel channel) {
     super(channel);
@@ -94,7 +95,6 @@ public class WebViewChannelDelegate extends ChannelDelegateImpl {
         break;
       case loadUrl:
         if (webView != null) {
-          Handler handler = new Handler();
           Runnable runnable = new Runnable() {
             @Override
             public void run() {
