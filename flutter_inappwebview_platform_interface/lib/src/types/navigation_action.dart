@@ -3,6 +3,7 @@ import 'package:flutter_inappwebview_internal_annotations/flutter_inappwebview_i
 import 'url_request.dart';
 import 'navigation_type.dart';
 import 'frame_info.dart';
+import 'enum_method.dart';
 
 part 'navigation_action.g.dart';
 
@@ -19,7 +20,7 @@ class NavigationAction_ {
 
   ///Indicates whether the request was made for the main frame.
   ///
-  ///**NOTE for Android**: If the request is associated to the [PlatformWebViewCreationParams.onCreateWindow] event, this is always `true`.
+  ///**NOTE for Android and Windows**: If the request is associated to the [PlatformWebViewCreationParams.onCreateWindow] event, this is always `true`.
   ///Also, on Android < 21, this is always `true`.
   bool isForMainFrame;
 
@@ -37,7 +38,10 @@ class NavigationAction_ {
         apiName: "WebResourceRequest.hasGesture",
         apiUrl:
             "https://developer.android.com/reference/android/webkit/WebResourceRequest#hasGesture()",
-        note: "On Android < 21, this is always `false`")
+        note: "On Android < 21, this is always `false`"),
+    WindowsPlatform(
+        note:
+            "Available only if the request is associated to the [PlatformWebViewCreationParams.onCreateWindow] event")
   ])
   bool? hasGesture;
 

@@ -40,8 +40,10 @@ class PlatformInAppWebViewWidgetCreationParams
       super.shouldOverrideUrlLoading,
       super.onLoadResource,
       super.onScrollChanged,
-      @Deprecated('Use onDownloadStartRequest instead') super.onDownloadStart,
+      @Deprecated('Use onDownloadStarting instead') super.onDownloadStart,
+      @Deprecated('Use onDownloadStarting instead')
       super.onDownloadStartRequest,
+      super.onDownloadStarting,
       @Deprecated('Use onLoadResourceWithCustomScheme instead')
       super.onLoadResourceCustomScheme,
       super.onLoadResourceWithCustomScheme,
@@ -127,6 +129,9 @@ class PlatformInAppWebViewWidgetCreationParams
       super.onCameraCaptureStateChanged,
       super.onMicrophoneCaptureStateChanged,
       super.onContentSizeChanged,
+      super.onProcessFailed,
+      super.onAcceleratorKeyPressed,
+      super.onShowFileChooser,
       super.initialUrlRequest,
       super.initialFile,
       super.initialData,
@@ -166,6 +171,7 @@ class PlatformInAppWebViewWidgetCreationParams
   ///- Android native WebView
   ///- iOS
   ///- Web
+  ///- MacOS
   final PlatformHeadlessInAppWebView? headlessWebView;
 
   ///Used to keep alive this WebView.
@@ -175,6 +181,8 @@ class PlatformInAppWebViewWidgetCreationParams
   ///**Officially Supported Platforms/Implementations**:
   ///- Android native WebView
   ///- iOS
+  ///- MacOS
+  ///- Windows
   final InAppWebViewKeepAlive? keepAlive;
 
   ///Used to prevent gesture delay on iOS caused by Flutter's gestures handling
@@ -200,6 +208,7 @@ class PlatformInAppWebViewWidgetCreationParams
 ///- Android native WebView
 ///- iOS
 ///- Web
+///- MacOS
 ///- Windows
 ///{@endtemplate}
 abstract class PlatformInAppWebViewWidget extends PlatformInterface

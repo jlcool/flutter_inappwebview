@@ -116,7 +116,7 @@ namespace flutter_inappwebview_plugin
     flutter::TextureRegistrar* texture_registrar,
     GraphicsContext* graphics_context,
     HWND hwnd,
-    std::unique_ptr<flutter_inappwebview_plugin::InAppWebView> webView)
+    std::shared_ptr<flutter_inappwebview_plugin::InAppWebView> webView)
     : hwnd_(hwnd), view(std::move(webView)), texture_registrar_(texture_registrar)
   {
 #ifdef HAVE_FLUTTER_D3D_TEXTURE
@@ -180,18 +180,27 @@ namespace flutter_inappwebview_plugin
         },
         [this](const flutter::EncodableValue* arguments)
         {
-          event_sink_ = nullptr;
           return nullptr;
         });
 
     event_channel_->SetStreamHandler(std::move(handler));
   }
 
+  void CustomPlatformView::UnregisterMethodCallHandler() const
+  {
+    if (method_channel_) {
+      method_channel_->SetMethodCallHandler(nullptr);
+      if (view && view->channelDelegate) {
+        view->channelDelegate->UnregisterMethodCallHandler();
+      }
+    }
+  }
+
   CustomPlatformView::~CustomPlatformView()
   {
     debugLog("dealloc CustomPlatformView");
-    method_channel_->SetMethodCallHandler(nullptr);
-    texture_registrar_->UnregisterTexture(texture_id_);
+    event_sink_ = nullptr;
+    texture_registrar_->UnregisterTexture(texture_id_, nullptr);
   }
 
   void CustomPlatformView::RegisterEventHandlers()
@@ -209,8 +218,10 @@ namespace flutter_inappwebview_plugin
       {
         const auto& name = GetCursorName(cursor);
         const auto event = flutter::EncodableValue(
-          flutter::EncodableMap { {flutter::EncodableValue(kEventType),
-          flutter::EncodableValue("cursorChanged")},
+          flutter::EncodableMap { {
+              flutter::EncodableValue(kEventType),
+                flutter::EncodableValue("cursorChanged")
+            },
           { flutter::EncodableValue(kEventValue), name }});
         EmitEvent(event);
       });
@@ -271,14 +282,15 @@ namespace flutter_inappwebview_plugin
     if (method_name.compare(kMethodSetPointerButton) == 0) {
       const auto& map = std::get<flutter::EncodableMap>(*method_call.arguments());
 
+      const auto kind = map.find(flutter::EncodableValue("kind"));
       const auto button = map.find(flutter::EncodableValue("button"));
-      const auto isDown = map.find(flutter::EncodableValue("isDown"));
-      if (button != map.end() && isDown != map.end()) {
+      if (kind != map.end() && button != map.end()) {
+        const auto kindValue = std::get_if<int32_t>(&kind->second);
         const auto buttonValue = std::get_if<int32_t>(&button->second);
-        const auto isDownValue = std::get_if<bool>(&isDown->second);
-        if (buttonValue && isDownValue && view) {
+        if (kindValue && buttonValue && view) {
           view->setPointerButtonState(
-            static_cast<flutter_inappwebview_plugin::InAppWebViewPointerButton>(*buttonValue), *isDownValue);
+            static_cast<InAppWebViewPointerEventKind>(*kindValue),
+            static_cast<InAppWebViewPointerButton>(*buttonValue));
           return result->Success();
         }
       }
